@@ -49,7 +49,6 @@ public:
   ripple::LocalIdentity self_id;
   ContactInfo contacts[MAX_CONTACTS];
   int num_contacts;
-  ripple::Destination* rep_req_dest;
 
   void addContact(const char* name, const ripple::Identity& id) {
     if (num_contacts < MAX_CONTACTS) {
@@ -170,9 +169,6 @@ public:
     num_contacts = 0;
   }
 
-  void setRepeaterRequest(ripple::Destination* dest) { rep_req_dest = dest; }
-  ripple::Destination* getRepeaterRequest() const { return rep_req_dest; }
-
   ripple::Packet* composeMsgPacket(const ripple::Destination& dest, const ContactInfo& recipient, const char *text) {
     int text_len = strlen(text);
     if (text_len > MAX_TEXT_LEN) return NULL;
@@ -195,16 +191,15 @@ public:
     // calc expected ACK hash reply
     ripple::Utils::sha256(expected_ack_hash, 4, (const uint8_t *) temp, 4 + text_len, self_id.pub_key, PUB_KEY_SIZE);
   #else
-    if (pkt) { pkt->calculate_hash(last_packet_hash); }
+    if (pkt) { pkt->calculatePacketHash(last_packet_hash); }
   #endif
     return pkt;
   }
 
   void sendSelfAnnounce() {
-    ripple::Destination dest(self_id, "chat.msg");
-    ripple::Packet* announce = createAnnounce(&dest, self_id);
+    ripple::Packet* announce = createAnnounce("chat.msg", self_id);
     if (announce) {
-      sendPacket(announce, 0);
+      sendPacket(announce, 2);
       Serial.println("   (announce sent).");
     } else {
       Serial.println("   ERROR: unable to create packet.");

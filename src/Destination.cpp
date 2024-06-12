@@ -5,11 +5,17 @@
 namespace ripple {
 
 Destination::Destination(const Identity& identity, const char* name) {
-  Utils::sha256(hash, DEST_HASH_SIZE, (const uint8_t *)name, strlen(name), identity.pub_key, PUB_KEY_SIZE);
+  uint8_t name_hash[NAME_HASH_SIZE];
+  Utils::sha256(name_hash, NAME_HASH_SIZE, (const uint8_t *)name, strlen(name));
+
+  Utils::sha256(hash, DEST_HASH_SIZE, name_hash, NAME_HASH_SIZE, identity.pub_key, PUB_KEY_SIZE);
 }
 
 Destination::Destination(const char* name) {
-  Utils::sha256(hash, DEST_HASH_SIZE, (const uint8_t *)name, strlen(name));
+  uint8_t name_hash[NAME_HASH_SIZE];
+  Utils::sha256(name_hash, NAME_HASH_SIZE, (const uint8_t *)name, strlen(name));
+
+  Utils::sha256(hash, DEST_HASH_SIZE, name_hash, NAME_HASH_SIZE);
 }
 
 Destination::Destination() {

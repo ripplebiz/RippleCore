@@ -72,7 +72,12 @@ void Dispatcher::checkRecv() {
         } else {
           memset(pkt->transport_id, 0, DEST_HASH_SIZE);  // useful for comparisons
         }
-        memcpy(pkt->destination_hash, &raw[i], DEST_HASH_SIZE); i += DEST_HASH_SIZE;
+
+        if (pkt->getPacketType() == PH_TYPE_ANNOUNCE) {
+          // destination_hash can now be calculated from Announce payload, so don't include in wire format
+        } else {
+          memcpy(pkt->destination_hash, &raw[i], DEST_HASH_SIZE); i += DEST_HASH_SIZE;
+        }
 
         if (i > len) {
           RIPPLE_DEBUG_PRINTLN("Dispatcher::checkRecv(): partial packet received, len=%d", len);
@@ -124,7 +129,12 @@ void Dispatcher::checkSend() {
     if (outbound->header & PH_HAS_TRANS_ADDRESS) {
       memcpy(&raw[len], outbound->transport_id, DEST_HASH_SIZE); len += DEST_HASH_SIZE;
     }
-    memcpy(&raw[len], outbound->destination_hash, DEST_HASH_SIZE); len += DEST_HASH_SIZE;
+
+    if (outbound->getPacketType() == PH_TYPE_ANNOUNCE) {
+      // destination_hash can now be calculated from Announce payload, so don't include in wire format
+    } else {
+      memcpy(&raw[len], outbound->destination_hash, DEST_HASH_SIZE); len += DEST_HASH_SIZE;
+    }
 
     if (len + outbound->payload_len > MAX_TRANS_UNIT) {
       RIPPLE_DEBUG_PRINTLN("Dispatcher::checkSend(): FATAL: Invalid packet queued... too long, len=%d", len + outbound->payload_len);

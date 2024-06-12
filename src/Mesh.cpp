@@ -22,8 +22,12 @@ DispatcherAction Mesh::onRecvPacket(Packet* pkt) {
       Identity id;
       memcpy(id.pub_key, &pkt->payload[i], PUB_KEY_SIZE); i += PUB_KEY_SIZE;
 
+      uint8_t* name_hash = &pkt->payload[i]; i += NAME_HASH_SIZE;
       uint8_t* rand_blob = &pkt->payload[i]; i += 8;
       uint8_t* signature = &pkt->payload[i]; i += SIGNATURE_SIZE;
+
+      // destination hash can now be calculated
+      Utils::sha256(pkt->destination_hash, DEST_HASH_SIZE, name_hash, NAME_HASH_SIZE, id.pub_key, PUB_KEY_SIZE); // dest = hash(name_hash + id)
 
       if (i > pkt->payload_len) {
         RIPPLE_DEBUG_PRINTLN("Mesh::onRecvPacket(): incomplete announce packet");
@@ -35,9 +39,9 @@ DispatcherAction Mesh::onRecvPacket(Packet* pkt) {
         // check that signature is valid
         bool is_ok;
         {
-          uint8_t message[DEST_HASH_SIZE + PUB_KEY_SIZE + 8 + MAX_APP_DATA_SIZE];
+          uint8_t message[NAME_HASH_SIZE + PUB_KEY_SIZE + 8 + MAX_APP_DATA_SIZE];
           int msg_len = 0;
-          memcpy(&message[msg_len], pkt->destination_hash, DEST_HASH_SIZE); msg_len += DEST_HASH_SIZE;
+          memcpy(&message[msg_len], name_hash, NAME_HASH_SIZE); msg_len += NAME_HASH_SIZE;
           memcpy(&message[msg_len], id.pub_key, PUB_KEY_SIZE); msg_len += PUB_KEY_SIZE;
           memcpy(&message[msg_len], rand_blob, 8); msg_len += 8;
           memcpy(&message[msg_len], app_data, app_data_len); msg_len += app_data_len;
@@ -59,7 +63,7 @@ DispatcherAction Mesh::onRecvPacket(Packet* pkt) {
     }
     case PH_TYPE_DATA: {
       uint8_t packet_hash[DEST_HASH_SIZE];
-      pkt->calculate_hash(packet_hash);
+      pkt->calculatePacketHash(packet_hash);
       if (isDatagramNew(pkt, packet_hash)) {
         action = onDatagramRecv(pkt, packet_hash);
       }
@@ -82,7 +86,7 @@ DispatcherAction Mesh::onRecvPacket(Packet* pkt) {
   return action;
 }
 
-Packet* Mesh::createAnnounce(Destination* destination, const LocalIdentity& id, const uint8_t* app_data, size_t app_data_len) {
+Packet* Mesh::createAnnounce(const char* dest_name, const LocalIdentity& id, const uint8_t* app_data, size_t app_data_len) {
   if (app_data_len > MAX_APP_DATA_SIZE) return NULL;
 
   Packet* packet = obtainNewPacket();
@@ -93,10 +97,13 @@ Packet* Mesh::createAnnounce(Destination* destination, const LocalIdentity& id, 
 
   packet->header = PH_TYPE_ANNOUNCE;
   packet->hops = 0;
-  memcpy(packet->destination_hash, destination->hash, DEST_HASH_SIZE);
 
   int len = 0;
   memcpy(&packet->payload[len], id.pub_key, PUB_KEY_SIZE); len += PUB_KEY_SIZE;
+
+  uint8_t* name_hash = &packet->payload[len]; len += NAME_HASH_SIZE;
+  Utils::sha256(name_hash, NAME_HASH_SIZE, (const uint8_t *)dest_name, strlen(dest_name));
+  Utils::sha256(packet->destination_hash, DEST_HASH_SIZE, name_hash, NAME_HASH_SIZE, id.pub_key, PUB_KEY_SIZE); // dest = hash(name_hash + id)
 
   uint8_t* rand_blob = &packet->payload[len];
   {
@@ -112,9 +119,9 @@ Packet* Mesh::createAnnounce(Destination* destination, const LocalIdentity& id, 
   packet->payload_len = len;
 
   {
-    uint8_t message[DEST_HASH_SIZE + PUB_KEY_SIZE + 8 + MAX_APP_DATA_SIZE];
+    uint8_t message[NAME_HASH_SIZE + PUB_KEY_SIZE + 8 + MAX_APP_DATA_SIZE];
     int msg_len = 0;
-    memcpy(&message[msg_len], packet->destination_hash, DEST_HASH_SIZE); msg_len += DEST_HASH_SIZE;
+    memcpy(&message[msg_len], name_hash, NAME_HASH_SIZE); msg_len += NAME_HASH_SIZE;
     memcpy(&message[msg_len], id.pub_key, PUB_KEY_SIZE); msg_len += PUB_KEY_SIZE;
     memcpy(&message[msg_len], rand_blob, 8); msg_len += 8;
     memcpy(&message[msg_len], app_data, app_data_len); msg_len += app_data_len;

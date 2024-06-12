@@ -101,7 +101,7 @@ public:
   RNG* getRNG() const { return _rng; }
   RTCClock* getRTCClock() const { return _rtc; }
 
-  Packet* createAnnounce(Destination* destination, const LocalIdentity& id, const uint8_t* app_data=NULL, size_t app_data_len=0);
+  Packet* createAnnounce(const char* dest_name, const LocalIdentity& id, const uint8_t* app_data=NULL, size_t app_data_len=0);
   Packet* createDatagram(const Destination* destination, const uint8_t* payload, int len, bool wantReply=false);
   Packet* createReply(const uint8_t* packet_hash, const uint8_t *reply, size_t reply_len);
   Packet* createReplySigned(const uint8_t* packet_hash, const LocalIdentity& id, const uint8_t *reply, size_t reply_len);

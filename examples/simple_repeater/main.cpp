@@ -86,7 +86,7 @@ class MyMesh : public ripple::MeshTransportFull {
           //   OR was one hop away from a node who did have this destination in their tables.
           // so, this destination IS reachable, but admin may want to trigger a new Announce manually if this destination is
           //   currently not reachable by some other part of the mesh.
-          return createAnnounce(request_in, self_id, (const uint8_t *)ANNOUNCE_DATA, strlen(ANNOUNCE_DATA));
+          return createAnnounce("repeater.request", self_id, (const uint8_t *)ANNOUNCE_DATA, strlen(ANNOUNCE_DATA));
         }
         return NULL;  // invalid request (not authorised)
       }
@@ -135,13 +135,15 @@ public:
     ripple::Utils::fromHex(admin_secret, sizeof(admin_secret), ADMIN_SECRET_KEY);
   }
 
-  void begin(ripple::Destination* dest) { 
-    request_in = dest;
+  void begin() { 
+    // destination for admin to use
+    request_in = new ripple::Destination(self_id, "repeater.request");
+
     ripple::MeshTransportFull::begin();
   }
 
   void sendSelfAnnounce() {
-    ripple::Packet* pkt = createAnnounce(request_in, self_id, (const uint8_t *)ANNOUNCE_DATA, strlen(ANNOUNCE_DATA));
+    ripple::Packet* pkt = createAnnounce("repeater.request", self_id, (const uint8_t *)ANNOUNCE_DATA, strlen(ANNOUNCE_DATA));
     if (pkt) {
       sendPacket(pkt, 2);
     } else {
@@ -194,9 +196,7 @@ void setup() {
     ripple::Utils::printHex(Serial, dest.hash, DEST_HASH_SIZE); Serial.println();
   }
 
-  // destination for admin to use
-  auto request_dest = new ripple::Destination(mesh.self_id, "repeater.request");
-  mesh.begin(request_dest);
+  mesh.begin();
 
   // send out initial Announce to the mesh
   mesh.sendSelfAnnounce();

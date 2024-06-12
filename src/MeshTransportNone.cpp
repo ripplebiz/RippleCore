@@ -183,7 +183,7 @@ void MeshTransportNone::prepareLocalAnnounce(Packet* packet, const uint8_t* rand
 
 void MeshTransportNone::prepareLocalDatagram(Packet* packet) {
   uint8_t packet_hash[DEST_HASH_SIZE];
-  packet->calculate_hash(packet_hash);
+  packet->calculatePacketHash(packet_hash);
 
   uint8_t next_hop[DEST_HASH_SIZE];
   if (_tables->getNextHop(packet->destination_hash, next_hop)) {

@@ -10,7 +10,7 @@
 
 /* ---------------------------------- CONFIGURATION ------------------------------------- */
 
-const char *repeater_public = "71C6F9C760341EE00D32CC3B29782426F90ED15987707E6FD82DCDD1FE8920C8";
+const char *repeater_public = "A1F763BE116FB3BFD65EE44B0C999981CA73C11122DC52C0E341AE20F81316F8";
 
 #define ADMIN_SECRET_KEY   "8802D56E21E4127A46AC244BA2E99A9AF8F5A90D7825CB81C10FE6AFDEE2AB55"
 
@@ -52,6 +52,7 @@ protected:
   // acts as filter for which Announces this app is interested in
   bool isAnnounceNew(ripple::Packet* packet, const ripple::Identity& id, const uint8_t* rand_blob, const uint8_t* app_data, size_t app_data_len) override {
     if (MeshTransportNone::isAnnounceNew(packet, id, rand_blob, app_data, app_data_len)) {
+      // alternatively, we could match by id.public_key
       if (rep_req_dest->matches(packet->destination_hash)) {  // is the Repeater announce
         return true;
       }
@@ -110,7 +111,7 @@ public:
     getRNG()->random(&payload[5], 4);  // need to append random blob, for unique packet_hash
 
     ripple::Packet* pkt = createDatagram(rep_req_dest, payload, sizeof(payload), true);  // not encrypted
-    if (pkt) pkt->calculate_hash(stats_packet_hash);
+    if (pkt) pkt->calculatePacketHash(stats_packet_hash);
 
     return pkt;
   }
@@ -123,7 +124,7 @@ public:
     enc_payload[0] = CMD_SET_CLOCK;
     int enc_len = ripple::Utils::encryptThenMAC(admin_secret, &enc_payload[1], payload, 4);
     ripple::Packet* pkt = createDatagram(rep_req_dest, enc_payload, enc_len + 1, true);
-    if (pkt) pkt->calculate_hash(set_packet_hash);
+    if (pkt) pkt->calculatePacketHash(set_packet_hash);
 
     return pkt;
   }
@@ -136,7 +137,7 @@ public:
     enc_payload[0] = CMD_SET_CONFIG;
     int enc_len = ripple::Utils::encryptThenMAC(admin_secret, &enc_payload[1], (const uint8_t *)payload, strlen(payload));
     ripple::Packet* pkt = createDatagram(rep_req_dest, enc_payload, enc_len + 1, true);
-    if (pkt) pkt->calculate_hash(set_packet_hash);
+    if (pkt) pkt->calculatePacketHash(set_packet_hash);
 
     return pkt;
   }

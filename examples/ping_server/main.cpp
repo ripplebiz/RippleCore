@@ -41,7 +41,6 @@ public:
   }
 
   void setPingDest(ripple::Destination* ping) { ping_in = ping; }
-  ripple::Destination* getPingDest() const { return ping_in; }
 };
 
 SPIClass spi;
@@ -77,10 +76,10 @@ void setup() {
 
 void loop() {
   if (mesh.millisHasNowPassed(nextAnnounce)) {
-    ripple::Packet* pkt = mesh.createAnnounce(mesh.getPingDest(), mesh.self_id /*, (const uint8_t *)"PING", 4 */);
+    ripple::Packet* pkt = mesh.createAnnounce("sample.ping", mesh.self_id /*, (const uint8_t *)"PING", 4 */);
     if (pkt) mesh.sendPacket(pkt, 2);
 
-    nextAnnounce = mesh.futureMillis(30000);  // announce every 30 seconds
+    nextAnnounce = mesh.futureMillis(30000);  // announce every 30 seconds (test only, don't do in production!)
   }
   mesh.loop();
 }

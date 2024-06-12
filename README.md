@@ -18,7 +18,7 @@ Try running these two examples first, flashing to two separate Heltec V3's, and 
 
 There is also a pair of examples, **'ping_client'** and **'ping_server'** which has some very basic constructs for setting up a node in a 'server'-like role, and another as client.
 
-There is also a **'simple_repeater'** example, which should function as a basic repeater to ALL of the verious samples, like the chat ones. It also defines a few examples of some 'remote admin', like setting the clock. The **'test_admin'** example is an example of an app that remotely monitors and sends commands to the 'simple_repeater' nodes.
+There is also a **'simple_repeater'** example, which should function as a basic repeater to ALL of the various samples, like the chat ones. It also defines a few examples of some 'remote admin', like setting the clock. The **'test_admin'** example is an example of an app that remotely monitors and sends commands to the 'simple_repeater' nodes.
 
 ## To-Do's
 

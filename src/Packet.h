@@ -31,7 +31,7 @@ public:
 
   void setDestinationHash(Destination* dest);
   bool isDestination(const uint8_t* hash);
-  void calculate_hash(uint8_t* dest_hash);
+  void calculatePacketHash(uint8_t* dest_hash);
 
   // general helpers
   uint8_t getPacketType() const { return header & PH_TYPE_MASK; }

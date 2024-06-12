@@ -107,7 +107,7 @@ void loop() {
       ripple::Packet* pkt = mesh.createDatagram(mesh.getPingDest(), data, 4, true);  // NOTE: this is PLAINTEXT
       if (pkt) { 
         mesh.sendPacket(pkt, 0);
-        pkt->calculate_hash(mesh.last_ping_hash);  // keep packet_hash of last PING
+        pkt->calculatePacketHash(mesh.last_ping_hash);  // keep packet_hash of last PING
       }
     }
     nextPing = mesh.futureMillis(10000);  // attempt ping every 10 seconds

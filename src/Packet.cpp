@@ -18,7 +18,7 @@ bool Packet::isDestination(const uint8_t* hash) {
   return memcmp(destination_hash, hash, DEST_HASH_SIZE) == 0;
 }
 
-void Packet::calculate_hash(uint8_t* hash) {
+void Packet::calculatePacketHash(uint8_t* hash) {
   SHA256 sha;
   uint8_t hdr = header & PH_TYPE_MASK;
   sha.update(&hdr, 1);

@@ -87,6 +87,35 @@ public:
     memset(_dest_entries, 0, sizeof(_dest_entries));  // set all last_timestamp fields to zero
   }
 
+  void restoreFrom(File f) {
+    f.read(_seen_blobs, sizeof(_seen_blobs));
+    f.read((uint8_t *) &_next_seen_idx, sizeof(_next_seen_idx));
+
+    f.read(_seen_hashes, sizeof(_seen_hashes));
+    f.read(_hash_code, sizeof(_hash_code));
+    f.read((uint8_t *) &_next_hash_idx, sizeof(_next_hash_idx));
+
+    f.read((uint8_t *) _hash_mappings, sizeof(_hash_mappings));
+    f.read((uint8_t *) &_next_mapping_idx, sizeof(_next_mapping_idx));
+
+    f.read(_dest_hashes, sizeof(_dest_hashes));
+    f.read((uint8_t *) _dest_entries, sizeof(_dest_entries));
+  }
+  void saveTo(File f) {
+    f.write(_seen_blobs, sizeof(_seen_blobs));
+    f.write((const uint8_t *) &_next_seen_idx, sizeof(_next_seen_idx));
+
+    f.write(_seen_hashes, sizeof(_seen_hashes));
+    f.write(_hash_code, sizeof(_hash_code));
+    f.write((const uint8_t *) &_next_hash_idx, sizeof(_next_hash_idx));
+
+    f.write((const uint8_t *) _hash_mappings, sizeof(_hash_mappings));
+    f.write((const uint8_t *) &_next_mapping_idx, sizeof(_next_mapping_idx));
+
+    f.write(_dest_hashes, sizeof(_dest_hashes));
+    f.write((const uint8_t *) _dest_entries, sizeof(_dest_entries));
+  }
+
   bool hasSeen(const uint8_t* rand_blob) const override {
     const uint8_t* sp = _seen_blobs;
     while (sp - _seen_blobs < sizeof(_seen_blobs)) {

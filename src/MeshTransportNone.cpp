@@ -76,8 +76,10 @@ DispatcherAction MeshTransportNone::onDatagramRecv(Packet* packet, const uint8_t
       // Multiple nodes around sender could all try to reply at once, so apply a random delay
       uint32_t rand_delay = _rng->nextInt(PATH_REQUEST_DELAY_MIN, PATH_REQUEST_DELAY_MAX);
 
-      // if this is MeshTransportFull,  need to rew-rite the transport_id to be SELF!! ie. WE are the next-hop!
-      onBeforeAnnounceRetransmit(packet);
+      if (packet->hops > 0) {  // is NOT a locally generated Announce
+        // if this is MeshTransportFull,  need to rew-rite the transport_id to be SELF!! ie. WE are the next-hop!
+        onBeforeAnnounceRetransmit(packet);
+      }
 
       //   See optimisation in isAnnounceNew():
       //        while waiting random interval, if incoming packet matches this announce.pub_key AND their hops <= hops in 
@@ -211,8 +213,6 @@ void MeshTransportNone::prepareLocalReply(Packet* packet) {
 
 void MeshTransportNone::begin() {
   Mesh::begin();
-
-  // TODO: init tables
 }
 
 void MeshTransportNone::loop() {

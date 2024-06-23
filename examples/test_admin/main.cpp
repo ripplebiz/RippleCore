@@ -1,5 +1,6 @@
 #include <Arduino.h>   // needed for PlatformIO
 #include <MeshTransportNone.h>
+#include <SPIFFS.h>
 
 #define RADIOLIB_STATIC_ONLY 1
 #include <RadioLib.h>

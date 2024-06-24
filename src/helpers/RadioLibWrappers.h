@@ -21,6 +21,7 @@ public:
 
   uint32_t getPacketsRecv() const { return n_recv; }
   uint32_t getPacketsSent() const { return n_sent; }
+  virtual float getLastRSSI() const;
 };
 
 /**

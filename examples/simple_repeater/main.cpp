@@ -33,6 +33,8 @@
 struct RepeaterStats {
   uint16_t batt_milli_volts;
   uint16_t curr_tx_queue_len;
+  uint16_t curr_free_queue_len;
+  int16_t  last_rssi;
   uint32_t n_packets_recv;
   uint32_t n_packets_sent;
   uint32_t n_active_dest;
@@ -59,6 +61,8 @@ class MyMesh : public ripple::MeshTransportFull {
         RepeaterStats stats;
         stats.batt_milli_volts = board.getBattMilliVolts();
         stats.curr_tx_queue_len = _mgr->getOutboundCount();
+        stats.curr_free_queue_len = _mgr->getFreeCount();
+        stats.last_rssi = (int16_t) my_radio->getLastRSSI();
         stats.n_packets_recv = my_radio->getPacketsRecv();
         stats.n_packets_sent = my_radio->getPacketsSent();
         stats.n_active_dest = _tables->getActiveNextHopCount(max_age_secs);

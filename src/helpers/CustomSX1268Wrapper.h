@@ -7,4 +7,5 @@ class CustomSX1268Wrapper : public RadioLibWrapper {
 public:
   CustomSX1268Wrapper(CustomSX1268& radio, ripple::MainBoard& board) : RadioLibWrapper(radio, board) { }
   bool isReceiving() override { return ((CustomSX1268 *)_radio)->isReceiving(); }
+  float getLastRSSI() const override { return ((CustomSX1268 *)_radio)->getRSSI(); }
 };

@@ -37,6 +37,8 @@ const char *repeater_public = "A1F763BE116FB3BFD65EE44B0C999981CA73C11122DC52C0E
 struct RepeaterStats {
   uint16_t batt_milli_volts;
   uint16_t curr_tx_queue_len;
+  uint16_t curr_free_queue_len;
+  int16_t  last_rssi;
   uint32_t n_packets_recv;
   uint32_t n_packets_sent;
   uint32_t n_active_dest;
@@ -76,6 +78,8 @@ protected:
       Serial.println("Repeater Stats:");
       Serial.printf("  battery: %d mV\n", (uint32_t) stats.batt_milli_volts);
       Serial.printf("  tx queue: %d\n", (uint32_t) stats.curr_tx_queue_len);
+      Serial.printf("  free queue: %d\n", (uint32_t) stats.curr_free_queue_len);
+      Serial.printf("  last RSSI: %d\n", (int) stats.last_rssi);
       Serial.printf("  num recv: %d\n", stats.n_packets_recv);
       Serial.printf("  num sent: %d\n", stats.n_packets_sent);
       Serial.printf("  num active destinations: %d  (in past hour)\n", stats.n_active_dest);

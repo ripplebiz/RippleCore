@@ -82,3 +82,7 @@ void RadioLibWrapper::onSendFinished() {
   _board->onAfterTransmit();
   state = STATE_IDLE;
 }
+
+float RadioLibWrapper::getLastRSSI() const {
+  return _radio->getRSSI();
+}

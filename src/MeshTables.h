@@ -47,8 +47,8 @@ protected:
   virtual bool saveDest(uint32_t handle, const uint8_t* hash, const DestPathEntry& dest) = 0;
 
 public:
-  virtual bool hasSeen(const uint8_t* rand_blob) const = 0;
-  virtual void setHasSeen(const uint8_t* rand_blob) = 0;
+  virtual bool hasForwarded(const uint8_t* rand_blob) const = 0;
+  virtual void setHasForwarded(const uint8_t* rand_blob) = 0;
 
   virtual int getSeenPacketHash(const uint8_t* hash) const = 0;
   virtual void setSeenPacketHash(const uint8_t* hash, int code) = 0;

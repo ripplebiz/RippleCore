@@ -41,7 +41,7 @@ bool MeshTransportNone::isAnnounceNew(Packet* packet, const Identity& id, const 
     }
   }
 
-  return !_tables->hasSeen(rand_blob);
+  return true;
 }
 
 void MeshTransportNone::onBeforeAnnounceRetransmit(Packet* packet) {
@@ -49,7 +49,6 @@ void MeshTransportNone::onBeforeAnnounceRetransmit(Packet* packet) {
 }
 
 DispatcherAction MeshTransportNone::onAnnounceRecv(Packet* packet, const Identity& id, const uint8_t* rand_blob, const uint8_t* app_data, size_t app_data_len) {
-  _tables->setHasSeen(rand_blob);
   _tables->updateNextHop(packet->destination_hash, packet);
 
   return ACTION_RELEASE;
@@ -179,7 +178,7 @@ bool MeshTransportNone::requestPathTo(const uint8_t* dest_hash) {
 }
 
 void MeshTransportNone::prepareLocalAnnounce(Packet* packet, const uint8_t* rand_blob) {
-  _tables->setHasSeen(rand_blob);
+  _tables->setHasForwarded(rand_blob);
   _tables->updateNextHop(packet->destination_hash, packet);  // store in our destinations table, in case we get "path.request"
 }
 

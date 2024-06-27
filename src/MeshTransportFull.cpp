@@ -7,8 +7,8 @@ namespace ripple {
 #define  ANNOUNCE_DELAY_MIN  2000
 
 DispatcherAction MeshTransportFull::onAnnounceRecv(Packet* packet, const Identity& id, const uint8_t* rand_blob, const uint8_t* app_data, size_t app_data_len) {
-  _tables->setHasSeen(rand_blob);
-  if (_tables->updateNextHop(packet->destination_hash, packet)) {
+  if (_tables->updateNextHop(packet->destination_hash, packet) && !_tables->hasForwarded(rand_blob)) {
+    _tables->setHasForwarded(rand_blob);
     if (packet->hops >= max_hops_supported) return ACTION_RELEASE;
 
     onBeforeAnnounceRetransmit(packet);  // need to re-write 'transport_id'

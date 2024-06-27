@@ -15,6 +15,7 @@ bool MeshTables::updateNextHop(const uint8_t* dest_hash, const ripple::Packet* a
   DestPathEntry entry;
   if (lookupDest(dest_hash, i, &entry)) {
     uint32_t oldTimestamp = entry.orig_announce.getAnnounceTimestamp();
+
     if (newTimestamp < oldTimestamp) return false;  // is an OLD anounce (can't go back in time)
 
     if (newTimestamp == oldTimestamp) {  // same announce, but arriving via different path

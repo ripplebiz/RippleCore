@@ -2,7 +2,7 @@
 
 #include <MeshTransportNone.h>
 
-#define MAX_RAND_BLOBS     32
+#define MAX_RAND_BLOBS     64
 #define MAX_PACKET_HASHES  64
 #define MAX_DEST_HASHES    64
 #define MAX_MAPPING_HASHES 64
@@ -13,8 +13,8 @@ struct HashMappingEntry {
 };
 
 class SimpleMeshTables : public ripple::MeshTables {
-  uint8_t _seen_blobs[MAX_RAND_BLOBS*8];
-  int _next_seen_idx;
+  uint8_t _fwd_blobs[MAX_RAND_BLOBS*8];
+  int _next_fwd_idx;
 
   uint8_t _seen_hashes[MAX_PACKET_HASHES*DEST_HASH_SIZE];
   uint8_t _hash_code[MAX_PACKET_HASHES];
@@ -74,8 +74,8 @@ protected:
 
 public:
   SimpleMeshTables(ripple::RTCClock& rtc): ripple::MeshTables(rtc) { 
-    memset(_seen_blobs, 0, sizeof(_seen_blobs));
-    _next_seen_idx = 0;
+    memset(_fwd_blobs, 0, sizeof(_fwd_blobs));
+    _next_fwd_idx = 0;
 
     memset(_seen_hashes, 0, sizeof(_seen_hashes));
     memset(_hash_code, 0, sizeof(_hash_code));
@@ -88,8 +88,8 @@ public:
   }
 
   void restoreFrom(File f) {
-    f.read(_seen_blobs, sizeof(_seen_blobs));
-    f.read((uint8_t *) &_next_seen_idx, sizeof(_next_seen_idx));
+    f.read(_fwd_blobs, sizeof(_fwd_blobs));
+    f.read((uint8_t *) &_next_fwd_idx, sizeof(_next_fwd_idx));
 
     f.read(_seen_hashes, sizeof(_seen_hashes));
     f.read(_hash_code, sizeof(_hash_code));
@@ -102,8 +102,8 @@ public:
     f.read((uint8_t *) _dest_entries, sizeof(_dest_entries));
   }
   void saveTo(File f) {
-    f.write(_seen_blobs, sizeof(_seen_blobs));
-    f.write((const uint8_t *) &_next_seen_idx, sizeof(_next_seen_idx));
+    f.write(_fwd_blobs, sizeof(_fwd_blobs));
+    f.write((const uint8_t *) &_next_fwd_idx, sizeof(_next_fwd_idx));
 
     f.write(_seen_hashes, sizeof(_seen_hashes));
     f.write(_hash_code, sizeof(_hash_code));
@@ -116,18 +116,18 @@ public:
     f.write((const uint8_t *) _dest_entries, sizeof(_dest_entries));
   }
 
-  bool hasSeen(const uint8_t* rand_blob) const override {
-    const uint8_t* sp = _seen_blobs;
-    while (sp - _seen_blobs < sizeof(_seen_blobs)) {
+  bool hasForwarded(const uint8_t* rand_blob) const override {
+    const uint8_t* sp = _fwd_blobs;
+    while (sp - _fwd_blobs < sizeof(_fwd_blobs)) {
       if (memcmp(rand_blob, sp, 8) == 0) return true;
       sp += 8;
     }
     return false;
   }
 
-  void setHasSeen(const uint8_t* rand_blob) override {
-    memcpy(&_seen_blobs[_next_seen_idx*8], rand_blob, 8);
-    _next_seen_idx = (_next_seen_idx + 1) % MAX_RAND_BLOBS;  // cyclic table
+  void setHasForwarded(const uint8_t* rand_blob) override {
+    memcpy(&_fwd_blobs[_next_fwd_idx*8], rand_blob, 8);
+    _next_fwd_idx = (_next_fwd_idx + 1) % MAX_RAND_BLOBS;  // cyclic table
   }
 
   int getSeenPacketHash(const uint8_t* hash) const override {

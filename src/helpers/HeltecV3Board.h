@@ -22,18 +22,18 @@
 #include <driver/rtc_io.h>
 
 class HeltecV3Board : public ESP32Board {
+  uint8_t startup_reason;
 public:
   void begin() {
+    startup_reason = BD_STARTUP_NORMAL;
     ESP32Board::begin();
 
     esp_reset_reason_t reason = esp_reset_reason();
     if (reason == ESP_RST_DEEPSLEEP) {
-      /*long wakeup_source = esp_sleep_get_ext1_wakeup_status();
+      long wakeup_source = esp_sleep_get_ext1_wakeup_status();
       if (wakeup_source & (1 << P_LORA_DIO_1)) {  // received a LoRa packet (while in deep sleep)
-        flags |= _BD_FLAG_RX_PACKET;
-      } else if (wakeup_source & (1 << PIN_WAKE_BTN)) {
-        flags |= _BD_FLAG_WAKE_BTN;
-      } */
+        startup_reason = BD_STARTUP_RX_PACKET;
+      }
 
       rtc_gpio_hold_dis((gpio_num_t)P_LORA_NSS);
       rtc_gpio_deinit((gpio_num_t)P_LORA_DIO_1);
@@ -46,7 +46,9 @@ public:
     pinMode(PIN_ADC_CTRL, OUTPUT);
   }
 
-  void enterDeepSleep(uint32_t secs) {
+  uint8_t getStartupReason() const { return startup_reason; }
+
+  void enterDeepSleep(uint32_t secs, int pin_wake_btn = -1) {
     esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_ON);
 
     // Make sure the DIO1 and NSS GPIOs are hold on required levels during deep sleep 
@@ -55,7 +57,11 @@ public:
 
     rtc_gpio_hold_en((gpio_num_t)P_LORA_NSS);
 
-    esp_sleep_enable_ext1_wakeup( (1 << P_LORA_DIO_1), ESP_EXT1_WAKEUP_ANY_HIGH);  // wake up on: recv LoRa packet
+    if (pin_wake_btn < 0) {
+      esp_sleep_enable_ext1_wakeup( (1L << P_LORA_DIO_1), ESP_EXT1_WAKEUP_ANY_HIGH);  // wake up on: recv LoRa packet
+    } else {
+      esp_sleep_enable_ext1_wakeup( (1L << P_LORA_DIO_1) | (1L << pin_wake_btn), ESP_EXT1_WAKEUP_ANY_HIGH);  // wake up on: recv LoRa packet OR wake btn
+    }
 
     if (secs > 0) {
       esp_sleep_enable_timer_wakeup(secs * 1000000);

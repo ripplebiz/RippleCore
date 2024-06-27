@@ -25,7 +25,9 @@ void RadioLibWrapper::begin() {
   _radio->setPacketReceivedAction(setFlag);  // this is also SentComplete interrupt
   state = STATE_IDLE;
 
-  setFlag(); // in case LoRa packet is already received, eg. for deep sleep wakeup
+  if (_board->getStartupReason() == BD_STARTUP_RX_PACKET) {  // received a LoRa packet (while in deep sleep)
+    setFlag(); // LoRa packet is already received
+  }
 }
 
 int RadioLibWrapper::recvRaw(uint8_t* bytes, int sz) {

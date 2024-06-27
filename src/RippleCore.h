@@ -27,6 +27,9 @@
 
 namespace ripple {
 
+#define  BD_STARTUP_NORMAL     0  // getStartupReason() codes
+#define  BD_STARTUP_RX_PACKET  1
+
 class MainBoard {
 public:
   virtual uint16_t getBattMilliVolts() = 0;
@@ -34,6 +37,7 @@ public:
   virtual void onBeforeTransmit() { }
   virtual void onAfterTransmit() { }
   virtual void reboot() = 0;
+  virtual uint8_t getStartupReason() const = 0;
 };
 
 }

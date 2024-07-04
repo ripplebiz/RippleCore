@@ -11,10 +11,14 @@ bool MeshTables::updateNextHop(const uint8_t* dest_hash, const ripple::Packet* a
   uint32_t now = _rtc->getCurrentTime();   // this is by OUR clock
   uint32_t newTimestamp = announce_pkt->getAnnounceTimestamp(); // this is by THEIR clock
 
+  RIPPLE_DEBUG_PRINTLN("updateNextHop, newTimestamp=%d, hops=%d", newTimestamp, (int) announce_pkt->hops);
+
   uint32_t i;
   DestPathEntry entry;
   if (lookupDest(dest_hash, i, &entry)) {
     uint32_t oldTimestamp = entry.orig_announce.getAnnounceTimestamp();
+
+    RIPPLE_DEBUG_PRINTLN("  oldTimestamp=%d, old.hops=%d", oldTimestamp, (int) entry.hops);
 
     if (newTimestamp < oldTimestamp) return false;  // is an OLD anounce (can't go back in time)
 
@@ -27,6 +31,7 @@ bool MeshTables::updateNextHop(const uint8_t* dest_hash, const ripple::Packet* a
       // is a new Announce, so trumps whatever is currently in destination table
     }
   } else {
+    RIPPLE_DEBUG_PRINTLN("  -is new-");
     i = findFreeDest();
   }
 

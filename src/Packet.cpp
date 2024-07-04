@@ -29,7 +29,7 @@ void Packet::calculatePacketHash(uint8_t* hash) {
 
 uint32_t Packet::getAnnounceTimestamp() const {
   uint32_t timestamp;
-  memcpy(&timestamp, &payload[PUB_KEY_SIZE], 4);
+  memcpy(&timestamp, &payload[PUB_KEY_SIZE + NAME_HASH_SIZE], 4);
   return timestamp;
 }
 

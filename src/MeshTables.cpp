@@ -33,6 +33,7 @@ bool MeshTables::updateNextHop(const uint8_t* dest_hash, const ripple::Packet* a
   } else {
     RIPPLE_DEBUG_PRINTLN("  -is new-");
     i = findFreeDest();
+    if (i == NIL_TABLE_HANDLE) return false;  // all Dest slots are currently 'busy'
   }
 
   entry.hops = announce_pkt->hops;

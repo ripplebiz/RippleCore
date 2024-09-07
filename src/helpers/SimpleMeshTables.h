@@ -7,6 +7,11 @@
 #define MAX_DEST_HASHES    64
 #define MAX_MAPPING_HASHES 64
 
+// if destination has had activity within this many secs, then don't evict it from table
+#ifndef KEEP_ALIVE_SECS
+  #define KEEP_ALIVE_SECS  60
+#endif
+
 struct HashMappingEntry {
   uint8_t  packet_hash[DEST_HASH_SIZE];
   uint8_t  orig_dest[DEST_HASH_SIZE];
@@ -63,6 +68,10 @@ protected:
         min_time = _dest_entries[i].last_timestamp;
       }
     }
+
+    auto now = _rtc->getCurrentTime();
+    if (min_time > now - KEEP_ALIVE_SECS) return NIL_TABLE_HANDLE;
+
     return min_i;
   }
 

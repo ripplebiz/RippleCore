@@ -3,8 +3,8 @@
 
 namespace ripple {
 
-#define  ANNOUNCE_DELAY_MAX  5000   // in milliseconds
-#define  ANNOUNCE_DELAY_MIN  2000
+#define  ANNOUNCE_DELAY_MAX  6000   // in milliseconds
+#define  ANNOUNCE_DELAY_MIN  4000
 
 DispatcherAction MeshTransportFull::onAnnounceRecv(Packet* packet, const Identity& id, const uint8_t* rand_blob, const uint8_t* app_data, size_t app_data_len) {
   if (_tables->updateNextHop(packet->destination_hash, packet) && !_tables->hasForwarded(rand_blob)) {

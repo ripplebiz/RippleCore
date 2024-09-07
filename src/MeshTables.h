@@ -13,6 +13,8 @@ struct DestPathEntry {
   ripple::Packet orig_announce;
 };
 
+#define NIL_TABLE_HANDLE   ((uint32_t) -1)
+
 /**
  * An abstraction of the data tables needed to be maintained, for the routing engine.
 */
@@ -33,7 +35,7 @@ protected:
 
   /**
    * \brief  find a free table entry, evicting the oldest (by last_timestamp) if necessary.
-   * \returns  the table 'handle' for the free entry
+   * \returns  the table 'handle' for the free entry, or NIL_TABLE_HANDLE if all dest slots are 'busy'
   */
   virtual uint32_t findFreeDest() = 0;
 

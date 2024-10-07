@@ -70,6 +70,16 @@ public:
    * \brief  Prints the hexadecimal representation of 'src' bytes of given length, to Stream 's'.
   */
   static void printHex(Stream& s, const uint8_t* src, size_t len);
+
+  /**
+   * \brief  parse 'text' into parts separated by 'separator' char.
+   * \param  text  the text to parse (note is MODIFIED!)
+   * \param  parts  destination array to store pointers to starts of parse parts
+   * \param  max_num  max elements to store in 'parts' array
+   * \param  separator  the separator character
+   * \returns  the number of parts parsed (in 'parts')
+   */
+  static int parseTextParts(char* text, const char* parts[], int max_num, char separator=',');
 };
 
 }

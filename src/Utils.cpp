@@ -125,4 +125,22 @@ bool Utils::fromHex(uint8_t* dest, int dest_size, const char *src_hex) {
   return true;
 }
 
+int Utils::parseTextParts(char* text, const char* parts[], int max_num, char separator) {
+  int num = 0;
+  char* sp = text;
+  while (*sp && num < max_num) {
+    parts[num++] = sp;
+    while (*sp && *sp != separator) sp++;
+    if (*sp) {
+       *sp++ = 0;  // replace the seperator with a null, and skip past it
+    }
+  }
+  // if we hit the maximum parts, make sure LAST entry does NOT have separator 
+  while (*sp && *sp != separator) sp++;
+  if (*sp) {
+    *sp = 0;  // replace the separator with null
+  }
+  return num;
+}
+
 }

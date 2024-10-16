@@ -88,3 +88,6 @@ void RadioLibWrapper::onSendFinished() {
 float RadioLibWrapper::getLastRSSI() const {
   return _radio->getRSSI();
 }
+float RadioLibWrapper::getLastSNR() const {
+  return _radio->getSNR();
+}

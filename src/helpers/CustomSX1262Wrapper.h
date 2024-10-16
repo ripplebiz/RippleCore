@@ -8,4 +8,5 @@ public:
   CustomSX1262Wrapper(CustomSX1262& radio, ripple::MainBoard& board) : RadioLibWrapper(radio, board) { }
   bool isReceiving() override { return ((CustomSX1262 *)_radio)->isReceiving(); }
   float getLastRSSI() const override { return ((CustomSX1262 *)_radio)->getRSSI(); }
+  float getLastSNR() const override { return ((CustomSX1262 *)_radio)->getSNR(); }
 };
